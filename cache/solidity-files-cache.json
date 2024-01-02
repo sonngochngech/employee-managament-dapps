@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/nguyenhongson159/blockchain/employeeManagement/contracts/DepartmentFactory.sol": {
-      "lastModificationDate": 1704042154085,
-      "contentHash": "81b66fc1a063d7a95b6bfb909553ee67",
+      "lastModificationDate": 1704122421026,
+      "contentHash": "d34c911f5fa12ac2fe9f5de4c0dfca86",
       "sourceName": "contracts/DepartmentFactory.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -41,8 +41,8 @@
       ]
     },
     "/home/nguyenhongson159/blockchain/employeeManagement/contracts/EmployeeFactory.sol": {
-      "lastModificationDate": 1704040255405,
-      "contentHash": "eb44bc02accbe26af0432327ef2c417f",
+      "lastModificationDate": 1704124676255,
+      "contentHash": "1a2a71269f428cc938d6bf8f5a444096",
       "sourceName": "contracts/EmployeeFactory.sol",
       "solcConfig": {
         "version": "0.8.20",

@@ -29,9 +29,8 @@ contract EmployeeFactory {
     mapping(address=>uint[]) public managerKeys;
 
     mapping(uint=>address) public employeeToOwner;
-    mapping(address=>uint[]) public ownEmployees;
 
-    event EmployeeCreated(uint id,string indexed phoneNumber,address indexed owner);
+    event EmployeeCreated(uint id,string phoneNumber,address indexed owner,string role);
     event EmployeeUpdated(uint indexed id);
     event EmployeeDeleted(uint indexed id);
 
@@ -49,14 +48,14 @@ contract EmployeeFactory {
             managers[id] = employees[id];
             managerKeys[msg.sender].push(id);
             employeeToOwner[id]=msg.sender;
-            emit EmployeeCreated(id,_phoneNumber,msg.sender);
+            emit EmployeeCreated(id,_phoneNumber,msg.sender,_role);
         } else if (keccak256(abi.encodePacked(_role)) == keccak256(abi.encodePacked("Employee"))) {
             if(_managerId>0)   require(_managerExists(_managerId), "Don't exists the manager ");
             uint id = _generateRandomId(_phoneNumber);
             employees[id] = Employee(id, _name, _phoneNumber, _departmentIds, _managerId, _role);
             employeeKeys[msg.sender].push(id);
             employeeToOwner[id]=msg.sender;
-            emit EmployeeCreated(id,_phoneNumber,msg.sender);
+            emit EmployeeCreated(id,_phoneNumber,msg.sender,_role);
         }
     }
     function deleteEmployee(uint _employeeId) public onlyOwner(_employeeId)  {
@@ -97,6 +96,9 @@ contract EmployeeFactory {
         }
         return result;
     }
+    function getEmployeeById(uint _employeeId) public view  onlyOwner(_employeeId) returns (Employee memory) {
+        return employees[_employeeId];
+    }
 
     function updateEmployee(uint _employeeId,string memory _name,string memory _phoneNumber,uint[] memory _departmentIds,uint _managerId,string  memory _role) public onlyOwner(_employeeId) {
         require(_employeeExists(_employeeId),"Employee does not exists");
@@ -111,6 +113,7 @@ contract EmployeeFactory {
             if(keccak256(abi.encodePacked(employees[_employeeId].role))==keccak256(abi.encodePacked("Manager"))){
                 require(keccak256(abi.encodePacked(_role))==keccak256(abi.encodePacked("Employee")),"");
             }
+        }else{
             employees[_employeeId].managerId=_managerId;
         }
         if(_departmentIds.length!=0){
@@ -139,12 +142,16 @@ contract EmployeeFactory {
                 managerKeys[msg.sender].pop();
             }
             employees[_employeeId].role=_role;
+            if(roleHash==managerHash){
+                managerKeys[msg.sender].push(_employeeId);
+            }
+
         }
         emit EmployeeUpdated(_employeeId);
 
     }
 
-    function verifyDepartment(uint[] memory departmentIds) public returns (bool){
+    function verifyDepartment(uint[] memory departmentIds)  public view returns (string memory){
         bytes32[][]  memory merklePathArray=departmentInstance.getMerklePathArray(departmentIds,msg.sender);
         for(uint i=0;i<merklePathArray.length;i++){
             bytes32 hash=keccak256(abi.encodePacked(departmentIds[i]));
@@ -157,11 +164,10 @@ contract EmployeeFactory {
             }
             console.logBytes32(hash);
             console.logBytes32(merklePathArray[i][length-1]);
-            if(hash!=merklePathArray[i][length-1]) return false;
+//            require(hash==merklePathArray[i][length-1],"Verify failure");
+            if(hash!=merklePathArray[i][length-1]) return "fail";
         }
-        console.log("It is right");
-        return true;
-
+        return "success";
     }
 
     function _generateRandomId(string memory _phoneNumber) private returns (uint){

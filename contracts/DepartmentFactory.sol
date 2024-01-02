@@ -26,7 +26,6 @@ contract DepartmentFactory {
 
 
     constructor(){
-//        departmentKeys[msg.sender] = [1, 2, 3, 4, 5];
     }
     function _generateRandomId(string memory _name) view private returns (uint256) {
         uint id = uint(keccak256(abi.encode(_name, randNonce, block.timestamp))) % modulus;
@@ -144,11 +143,21 @@ contract DepartmentFactory {
         ElementRow[] memory merkleTree=generateMerkleTree(owner);
         bytes32[] memory hashes=merkleTree[0].hashes;
          for(uint i=0;i<departmentIds.length;i++){
-             bytes32[] memory merklePath=new bytes32[](Math.log2(departmentKeys[owner].length)+2);
+             bytes32[] memory merklePath;
+             uint keysLength=departmentKeys[owner].length;
+             uint exponent=Math.log2(keysLength);
+             if(2**exponent==keysLength){
+                 merklePath=new bytes32[](Math.log2(departmentKeys[owner].length)+1);
+             }else{
+                 merklePath=new bytes32[](Math.log2(departmentKeys[owner].length)+2);
+             }
+             console.log(merklePath.length);
+             console.log(merkleTree.length);
              uint merklePathCounter=0;
              uint position=_getDepartmentPosition(departmentIds[i],hashes);
              if(position!= type(uint).max){
                  for(uint j=0;j<merkleTree.length;j++){
+                     console.log(merkleTree[j].hashes.length);
                      if(position==merkleTree[j].hashes.length-1){
                          if(position%2==0) {
                              merklePath[merklePathCounter]=merkleTree[j].hashes[position];
@@ -180,7 +189,17 @@ contract DepartmentFactory {
         bytes32[] hashes;
     }
     function generateMerkleTree(address owner) view public returns (ElementRow[] memory){
-        ElementRow[] memory merkleTree=new ElementRow[](Math.log2(departmentKeys[owner].length)+2);
+        console.log(Math.log2(1));
+        ElementRow[] memory merkleTree;
+        uint keysLength=departmentKeys[owner].length;
+        uint exponent=Math.log2(keysLength);
+        if(2**exponent==keysLength){
+            merkleTree=new ElementRow[](Math.log2(departmentKeys[owner].length)+1);
+        }else{
+            merkleTree=new ElementRow[](Math.log2(departmentKeys[owner].length)+2);
+        }
+//        ||2**(exponent+1)==keysLength+1
+
         uint DepartmentKeysLength=departmentKeys[owner].length;
         if(DepartmentKeysLength==0) return  new ElementRow[](0);
         bytes32[] memory departmentKeyHashes=new bytes32[](departmentKeys[owner].length);

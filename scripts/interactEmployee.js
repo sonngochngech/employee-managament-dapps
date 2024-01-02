@@ -32,7 +32,7 @@ async function verify(){
     const Employee= await  ethers.getContractFactory("EmployeeFactory");
     const contract=Employee.attach(process.env.EMPLOYEE_ADDRESS);
     // const result = await contract. generateEmployee("hongsonss","123",[61246271457571n],0,"Manager");
-    const vwresult = await contract.verifyDepartment([61246271457571n]);
+    const vwresult = await contract.verifyDepartment([1n]);
 
 }
 
